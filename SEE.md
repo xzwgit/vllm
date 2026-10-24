@@ -1,4 +1,6 @@
-# SM120-OPT — RTX PRO 6000 / 6000D (SM120) serving optimization line
+# SEE — SM120 serving optimization line (RTX PRO 6000 / 6000D)
+
+> Branch renamed sm120-opt → **see** (2026-10-24). Same line, same rules.
 
 Decoupled optimization branch for DeepSeek-V4.1-Flash serving on 8x SM120
 workstation GPUs (RTX PRO 6000 96G / RTX 6000D 84G). This line tracks
