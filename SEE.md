@@ -102,3 +102,25 @@ spec recipe is clean, so the damage is in the b12x kernel x DSV4.1 MXFP4
 weight layout (undocumented per DeepInfer campaign). Next fork item:
 audit the b12x weight/scale packing against FlashInfer's b12x tests.
 Artifacts: llm-test `sm120opt-162/`.
+## Experiment log — 2026-10-25 small hours (second night entry)
+
+**Cross-machine validation of the dynamic-alignment patch** (.158 dev440):
+8K c8 triple-repeat 663/666/642 vs stock 605.8 (+8.5%, stable); c32 within
+its 902-1047 variance band, no regression. Combined with .162 dev451
+(+12.4% c32 / +51.3% 8K c8): the patch never regresses; gain magnitude
+grows with the vendored DeepGEMM version (dev451's BM64 tiles are more
+efficient than dev440's). Evidence: llm-test b06703517.
+
+**b12x direction locked**: FlashInfer's own SM120 b12x functional-API
+accuracy suite passes 122/122 on this stack (incl. CUDA-graph replay and
+micro-kernel paths) — the corruption is specific to vLLM's TPMoe-path
+wiring for MXFP4xMXFP8. Next SEE item: route SM120 to the functional
+`b12x_fused_moe` API (reference: kacper-daftcode/vLLM-Moet
+tools/dsv41_sm120/b12x_moe_fused/, Apache-2.0).
+
+**A-line (upstream knobs) closed**: indexer mxfp4 is explicitly gated to
+sm_10x datacenter by vLLM (fails loud on SM120). KV tiering
+(TieringOffloadingSpec, CPU 400GiB + fs tier) demonstrates real capacity
+(32x512K live = 16.4M tokens > 12.66M GPU pool, all succeeded) at the
+cost of -17% hot-path throughput → opt-in for capacity-starved shapes
+only, not a default.
