@@ -48,3 +48,32 @@ nothing here is PR-bound.
   health check per tier, quality probes (math/zh/tool-call + teacher-
   forced agreement for lossy items), raw logs with BOOT CMD.
 - Lossy switches must be individually measurable and default-off.
+
+## Machine assignment (2026-10-24)
+
+- **.158 (8x RTX 6000D 84G)** — k7 recipe line (upstream-capable work:
+  formal k7 validation, acceptance metrics, agent tiers). venv
+  `/root/v60762` (dev440 stock), weights `/data/models/DeepSeek-V4.1-Flash-1017`.
+- **.162 (8x RTX 6000D 84G)** — THIS fork's kernel line. Ops dir
+  `/root/sm120opt_ops/`, venv `/root/sm120opt` (dev440), source checkout
+  `/root/sm120opt_src` (this branch), weights rsynced to
+  `/root/DeepSeek-V4.1-Flash-1017`. Do not touch other users' dirs on
+  this host (NV personnel share it).
+
+## DeepInfer absorption plan (kernel-level, from the 2026-10-20/22 campaign)
+
+Validated SM120-usable assets from the DeepInfer investigation
+(`DeepInfer-1017-SM120-测试指引-20261020.md` §12.2):
+
+1. **FlashInfer 0.7.2 `b12x_fused_moe` (SM120a CuTe-DSL)** — first fork
+   experiment: wire `--moe-backend b12x` for DSV4.1 MXFP4 experts, A/B vs
+   DEEPGEMM_MXFP4 (k7 baseline: c32 1000.4 tok/s on .158). Known gaps
+   from the campaign: mxfp4 weight layout undocumented, B12xMoEWrapper
+   NVFP4-only + no EP (may need fork-side fixes — that IS the work).
+2. **DeepGEMM PR#318 sm120 kernels** (cherry-pick into vendored DeepGEMM
+   + arch-12 dispatch): `sm120_fp8_paged_mqa_logits` (indexer), 
+   `sm120_tf32_hc_prenorm_gemm` (hyper-connection), `sm120_fp8_einsum`
+   (recipe coverage limited — only (1,128,128)).
+3. Keep as reference (NOT absorbable): DeepInfer's torch fallbacks from
+   the link-opening campaign (slow, quality-degraded); mega_moe/mega_mhc
+   (SM100f-only, no SM120 kernels exist); DeepEP GIN paths (no RDMA here).
