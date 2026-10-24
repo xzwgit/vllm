@@ -87,3 +87,16 @@ same-machine reruns land in subdirs + README section, never sibling dirs).
 Archive rules: raw logs get a `=== BOOT COMMAND ===` header (api key
 masked `***`) before upload; evidence (bench logs, probes, failure
 signatures) travels with a one-line conclusion in the README.
+## Experiment log — 2026-10-24 b12x first run (.162)
+
+**Verdict: b12x on SM120 x DSV4.1-1017 is fast but numerically
+untrustworthy.** TP8-only (oracle rejects EP), requires the #60762 port
+(dev451 still asserts without it — third independent confirmation).
+Throughput: c1 321.5 tok/s (+18.8% vs k7+DEEPGEMM 270.6), c32 1044.6
+(+4.4% vs 1000.4). BUT exact-continuation tasks silently corrupt
+(`32319=32319=` loops) while chat/tool/code pass — lighter sibling of the
+flashinfer_cutlass corruption (vllm#63473). DEEPGEMM leg with identical
+spec recipe is clean, so the damage is in the b12x kernel x DSV4.1 MXFP4
+weight layout (undocumented per DeepInfer campaign). Next fork item:
+audit the b12x weight/scale packing against FlashInfer's b12x tests.
+Artifacts: llm-test `sm120opt-162/`.
