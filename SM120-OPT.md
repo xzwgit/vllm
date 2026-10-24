@@ -77,3 +77,13 @@ Validated SM120-usable assets from the DeepInfer investigation
 3. Keep as reference (NOT absorbable): DeepInfer's torch fallbacks from
    the link-opening campaign (slow, quality-degraded); mega_moe/mega_mhc
    (SM100f-only, no SM120 kernels exist); DeepEP GIN paths (no RDMA here).
+
+## Artifact workflow (binding, 2026-10-24)
+
+Every experiment on the .162 line: **test → pull artifacts to the local
+workspace (`D:\llmtest\data\<campaign>\`) → push to GitHub for backup**
+(`xzwgit/llm-test`, master, machine-keyed dir `sm120opt-162/` with README;
+same-machine reruns land in subdirs + README section, never sibling dirs).
+Archive rules: raw logs get a `=== BOOT COMMAND ===` header (api key
+masked `***`) before upload; evidence (bench logs, probes, failure
+signatures) travels with a one-line conclusion in the README.
