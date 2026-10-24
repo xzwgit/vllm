@@ -481,6 +481,13 @@ def deepgemm_moe_permute(
     device = aq.device
 
     block_m, block_k = get_mk_alignment_for_contiguous_layout()
+    # SEE(sm120): nv_dev per-group BLOCK_M policy — expected per-expert M <= 64
+    # caps the contiguous-group alignment at 64 (decode shapes otherwise pad
+    # every routed expert to 128 rows and run BLOCK_M=128 tiles over a few
+    # real rows). Deterministic per token-count shape -> cudagraph-safe.
+    _see_expected = -(-(int(aq.size(0)) * int(topk_ids.shape[-1])) // max(int(local_num_experts), 1))
+    if _see_expected <= 64 and block_m > 64:
+        block_m = 64
     # The activation-scale group size may differ from the M/K tile alignment
     # (e.g. MXFP8 uses a 32-element scale group while block_k stays 128).
     if block_size is not None:

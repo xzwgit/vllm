@@ -254,11 +254,15 @@ def _get_grouped_gemm_params(
 
     cases_by_shape: dict[tuple[int, int], torch.Tensor] = {}
     for request_m in request_m_values:
+        _see_align = block_m
+        _see_expected = -(-(request_m * num_topk) // max(num_experts, 1))
+        if _see_expected <= 64 and _see_align > 64:
+            _see_align = 64
         M_sum, align_used = compute_aligned_M_and_alignment(
             M=request_m,
             num_topk=num_topk,
             local_num_experts=num_experts,
-            alignment=block_m,
+            alignment=_see_align,
             expert_tokens_meta=None,
         )
         if (M_sum, align_used) in cases_by_shape:

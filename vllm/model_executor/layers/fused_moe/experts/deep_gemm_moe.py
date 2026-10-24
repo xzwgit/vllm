@@ -347,11 +347,19 @@ class DeepGemmExperts(mk.FusedMoEExpertsModular):
 
         assert w2.size(1) == K
 
+        # SEE(sm120): nv_dev per-group BLOCK_M policy — expected per-expert M
+        # <= 64 caps alignment at 64 (else every routed expert pads to 128
+        # rows and BLOCK_M=128 tiles run over a few real rows). Shape-
+        # deterministic -> cudagraph-safe; must match deepgemm_moe_permute.
+        _see_align = get_mk_alignment_for_contiguous_layout()[0]
+        _see_expected = -(-(topk_ids.size(0) * topk_ids.size(1)) // max(local_num_experts, 1))
+        if _see_expected <= 64 and _see_align > 64:
+            _see_align = 64
         M_sum, _ = compute_aligned_M_and_alignment(
             M=topk_ids.size(0),
             num_topk=topk_ids.size(1),
             local_num_experts=local_num_experts,
-            alignment=get_mk_alignment_for_contiguous_layout()[0],
+            alignment=_see_align,
             expert_tokens_meta=expert_tokens_meta,
         )
 
@@ -630,11 +638,19 @@ class DeepGemmFP4Experts(mk.FusedMoEExpertsModular):
         if global_num_experts == -1:
             global_num_experts = local_num_experts
 
+        # SEE(sm120): nv_dev per-group BLOCK_M policy — expected per-expert M
+        # <= 64 caps alignment at 64 (else every routed expert pads to 128
+        # rows and BLOCK_M=128 tiles run over a few real rows). Shape-
+        # deterministic -> cudagraph-safe; must match deepgemm_moe_permute.
+        _see_align = get_mk_alignment_for_contiguous_layout()[0]
+        _see_expected = -(-(topk_ids.size(0) * topk_ids.size(1)) // max(local_num_experts, 1))
+        if _see_expected <= 64 and _see_align > 64:
+            _see_align = 64
         M_sum, _ = compute_aligned_M_and_alignment(
             M=topk_ids.size(0),
             num_topk=topk_ids.size(1),
             local_num_experts=local_num_experts,
-            alignment=get_mk_alignment_for_contiguous_layout()[0],
+            alignment=_see_align,
             expert_tokens_meta=expert_tokens_meta,
         )
 
