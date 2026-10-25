@@ -153,3 +153,9 @@ only, thp leg needs rerun); PR318 cherry-pick assessed NOT-FEASIBLE
 (csrc/ compiled into .so, can't file-copy); next priority = upstream the
 alignment patch as a vllm main PR. Full details: llm-test
 `sm120opt-162/see-align-dyn/SEE-STATUS.md`.
+## Rule change (2026-10-25, user decision)
+
+**No further upstream PRs from this line.** SEE results stay on this fork
+(exceptions already in flight: #63533 alignment patch was submitted before
+this rule; it proceeds on its own). New findings land as commits to this
+branch + artifacts to llm-test, per the artifact workflow.
