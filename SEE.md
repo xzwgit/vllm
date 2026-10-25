@@ -124,3 +124,25 @@ sm_10x datacenter by vLLM (fails loud on SM120). KV tiering
 (32x512K live = 16.4M tokens > 12.66M GPU pool, all succeeded) at the
 cost of -17% hot-path throughput → opt-in for capacity-starved shapes
 only, not a default.
+## Next-lever inventory (2026-10-25 patrol review)
+
+Ranked by (benefit / difficulty), updated after the first-night results:
+
+1. **DeepGEMM PR#318 sm120 kernel cherry-picks** (paged_mqa_logits /
+   tf32_hc_prenorm / fp8_einsum into vendored DG + arch-12 dispatch) —
+   the alignment patch proved the vendored-DG lever pays; PR318's
+   kernels are the next concrete DG-level items. Medium difficulty
+   (172-file divergence, pick per file), unknown-but-plausible gain.
+2. **b12x fused-decode kernel** (kacper's .cu, Apache-2.0) — the
+   c1 +18.8% is real (TPMoe throughput measured) but the only correct
+   W4A8 route is a custom kernel; vendoring + adapting to the FI wheel
+   API is a focused multi-day job. Park until #318 lands or machines
+   free up.
+3. **KV tiering as an opt-in recipe** — the capacity proof is done
+   (512K×c32 live); the remaining work is documenting the
+   hot-path −17% trade-off and shipping a deployment recipe, not code.
+4. **use_thp:true engram tables** — untested lever from the m86 era;
+   one boot + memory/perf probe on .158 when idle.
+5. **Upstream the alignment patch** — once see has soaked it for a few
+   days, file the same change against vllm main as a proper PR (it is
+   a clean 3-file glue change, no fork-only APIs).
