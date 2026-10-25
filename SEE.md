@@ -146,3 +146,10 @@ Ranked by (benefit / difficulty), updated after the first-night results:
 5. **Upstream the alignment patch** — once see has soaked it for a few
    days, file the same change against vllm main as a proper PR (it is
    a clean 3-file glue change, no fork-only APIs).
+## Status snapshot 2026-10-25 AM (SEE-STATUS.md mirror)
+
+All artifacts on llm-test (33fd16d60); THP probe incomplete (baseline
+only, thp leg needs rerun); PR318 cherry-pick assessed NOT-FEASIBLE
+(csrc/ compiled into .so, can't file-copy); next priority = upstream the
+alignment patch as a vllm main PR. Full details: llm-test
+`sm120opt-162/see-align-dyn/SEE-STATUS.md`.
