@@ -159,3 +159,21 @@ alignment patch as a vllm main PR. Full details: llm-test
 (exceptions already in flight: #63533 alignment patch was submitted before
 this rule; it proceeds on its own). New findings land as commits to this
 branch + artifacts to llm-test, per the artifact workflow.
+
+## Experimental: NVFP4 KV on SM120 (added 2026-10-28)
+
+**Opt-in only; default KV stays fp8.** `tools/dsv41_sm120_nvfp4kv/` carries the
+two idempotent patches (vLLM gate 3 files + FlashInfer interleaved reader 19
+files, AOT-built) that make `--kv-cache-dtype nvfp4_ds_mla` usable on SM120 via
+FlashInfer #5197 dual-cache records. Measured on 8x 6000D (dev463 + FI 0.7.2.post1):
+KV pool +55.8% (8.53M -> 13.29M tokens, 12.67x @ 1M), throughput parity, fp8 path
+bit-identical, but **lossy by design** (one deterministic arithmetic flip) — hence
+experimental, capacity-bound scenarios only. Full evidence: llm-test
+`sm120opt-162/nvfp4kv-157/` (164a1c1da). Credit: patch lineage from
+kacper-daftcode/vLLM-Moet.
+
+## Sync log
+
+- 2026-10-28: merged upstream `main` @ `820be160c` into `see` (clean, no
+  conflicts; upstream now has `compute_aligned_M_and_alignment` from #59128 —
+  complementary to, not replacing, the sm120-dynamic-moe-block-m PR branch).
